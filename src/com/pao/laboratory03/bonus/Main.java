@@ -1,5 +1,8 @@
 package com.pao.laboratory03.bonus;
 
+import java.util.List;
+import java.util.Map;
+
 /**
  * Exercițiul 5 (Bonus) — Sistem de gestiune task-uri cu audit log
  *
@@ -155,10 +158,63 @@ package com.pao.laboratory03.bonus;
  */
 public class Main {
     public static void main(String[] args) {
-        // TODO: implementează toți cei 10 pași de mai sus
-        // Creează TOATE clasele necesare în acest pachet (bonus/)
-        // Nu ai subpachete impuse — organizează cum consideri
+        TaskService service = TaskService.getInstance();
+
+        // 1
+        System.out.println("=== Adaugare task-uri ===");
+        System.out.println(service.addTask("Fix login bug", Priority.CRITICAL));
+        System.out.println(service.addTask("Add dark mode", Priority.LOW));
+        System.out.println(service.addTask("Update docs", Priority.MEDIUM));
+        System.out.println(service.addTask("Fix memory leak", Priority.HIGH));
+        System.out.println(service.addTask("Refactor DB layer", Priority.HIGH));
+
+        // 2
+        System.out.println("\n=== Asignare ===");
+        service.assignTask("T001", "Ana");
+        service.assignTask("T003", "Mihai");
+        service.assignTask("T004", "Elena");
+
+        // 3
+        System.out.println("\n=== Schimbari status ===");
+        service.changeStatus("T001", Status.IN_PROGRESS);
+        service.changeStatus("T001", Status.DONE);
+        service.changeStatus("T003", Status.IN_PROGRESS);
+        try {
+            service.changeStatus("T001", Status.TODO);
+        } catch (InvalidTransitionException e) {
+            System.out.println("InvalidTransitionException: " + e.getMessage());
+        }
+
+        // 4
+        System.out.println("\n=== Task-uri HIGH ===");
+        for (Task t : service.getTasksByPriority(Priority.HIGH))
+            System.out.println(t);
+
+        // 5
+        System.out.println("\n=== Sumar status ===");
+        Map<Status, Long> summary = service.getStatusSummary();
+        for (Status s : Status.values())
+            System.out.println(s + ": " + summary.get(s));
+
+        // 6
+        System.out.println("\n=== Task-uri neasignate ===");
+        for (Task t : service.getUnassignedTasks())
+            System.out.println(t.getId() + ": " + t.getTitle());
+
+        // 7
+        System.out.println("\n=== Scor urgenta (baseDays=5) ===");
+        System.out.println("Total: " + service.getTotalUrgencyScore(5));
+
+        // 8
+        System.out.println("\n=== Audit Log ===");
+        service.printAuditLog();
+
+        // 9-10
+        System.out.println("\n=== Exceptii ===");
+        try {
+            service.changeStatus("T999", Status.DONE);
+        } catch (TaskNotFoundException e) {
+            System.out.println("TaskNotFoundException: " + e.getMessage());
+        }
     }
 }
-
-
