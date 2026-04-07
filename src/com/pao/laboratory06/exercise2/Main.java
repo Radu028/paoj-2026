@@ -1,6 +1,7 @@
 package com.pao.laboratory06.exercise2;
 
 import java.util.*;
+import java.util.stream.Collectors;
 
 enum TipColaborator { CIM, PFA, SRL }
 
@@ -21,12 +22,9 @@ abstract class Colaborator implements IOperatiiCitireScriere {
 }
 
 abstract class PersoanaFizica extends Colaborator {}
-
 class PersoanaJuridica extends Colaborator {
     protected double venitLunar;
     protected double cheltuieliLunare;
-
-    public PersoanaJuridica() { this.tip = TipColaborator.SRL; }
 
     @Override
     public void citeste(Scanner in) {
@@ -34,6 +32,7 @@ class PersoanaJuridica extends Colaborator {
         this.prenume = in.next();
         this.venitLunar = in.nextDouble();
         this.cheltuieliLunare = in.nextDouble();
+        this.tip = TipColaborator.SRL;
     }
 
     @Override
@@ -43,17 +42,16 @@ class PersoanaJuridica extends Colaborator {
 
     @Override
     public void afiseaza() {
-        System.out.printf("SRL: %s %s, venit net anual: %.2f lei\n", nume, prenume, calculeazaVenitNetAnual());
+        System.out.printf("SRL: %s %s, venit net anual: %.2f lei%n", nume, prenume, calculeazaVenitNetAnual());
     }
 
-    @Override public String tipContract() { return "SRL"; }
+    @Override
+    public String tipContract() { return "SRL"; }
 }
 
 class CIMColaborator extends PersoanaFizica {
     private double salariuBrutLunar;
     private boolean bonus;
-
-    public CIMColaborator() { this.tip = TipColaborator.CIM; }
 
     @Override
     public void citeste(Scanner in) {
@@ -62,30 +60,31 @@ class CIMColaborator extends PersoanaFizica {
         this.salariuBrutLunar = in.nextDouble();
         String bonusStr = in.next();
         this.bonus = bonusStr.equals("DA");
+        this.tip = TipColaborator.CIM;
     }
 
     @Override
     public double calculeazaVenitNetAnual() {
-        double venit = salariuBrutLunar * 12 * 0.55;
-        if (bonus) venit *= 1.10;
-        return venit;
+        double net = salariuBrutLunar * 12 * 0.55;
+        if (bonus) net *= 1.10;
+        return net;
     }
 
     @Override
     public void afiseaza() {
-        System.out.printf("CIM: %s %s, venit net anual: %.2f lei\n", nume, prenume, calculeazaVenitNetAnual());
+        System.out.printf("CIM: %s %s, venit net anual: %.2f lei%n", nume, prenume, calculeazaVenitNetAnual());
     }
 
-    @Override public String tipContract() { return "CIM"; }
-    @Override public boolean areBonus() { return bonus; }
+    @Override
+    public String tipContract() { return "CIM"; }
+    @Override
+    public boolean areBonus() { return bonus; }
 }
 
 class PFAColaborator extends PersoanaFizica {
-    private static final double SALARIU_MINIM_ANUAL = 4050.0 * 12;
     private double venitLunar;
     private double cheltuieliLunare;
-
-    public PFAColaborator() { this.tip = TipColaborator.PFA; }
+    private static final double SALARIU_MINIM = 4050;
 
     @Override
     public void citeste(Scanner in) {
@@ -93,29 +92,32 @@ class PFAColaborator extends PersoanaFizica {
         this.prenume = in.next();
         this.venitLunar = in.nextDouble();
         this.cheltuieliLunare = in.nextDouble();
+        this.tip = TipColaborator.PFA;
     }
 
     @Override
     public double calculeazaVenitNetAnual() {
         double venitNet = (venitLunar - cheltuieliLunare) * 12;
-        double impozit = 0.10 * venitNet;
+        double salariuMinimAnual = SALARIU_MINIM * 12;
+
+        double impozit = venitNet * 0.10;
 
         double cass;
-        if (venitNet < 6 * SALARIU_MINIM_ANUAL) {
-            cass = 0.10 * (6 * SALARIU_MINIM_ANUAL);
-        } else if (venitNet <= 72 * SALARIU_MINIM_ANUAL) {
+        if (venitNet < 6 * salariuMinimAnual) {
+            cass = 0.10 * 6 * salariuMinimAnual;
+        } else if (venitNet <= 72 * salariuMinimAnual) {
             cass = 0.10 * venitNet;
         } else {
-            cass = 0.10 * (72 * SALARIU_MINIM_ANUAL);
+            cass = 0.10 * 72 * salariuMinimAnual;
         }
 
         double cas;
-        if (venitNet < 12 * SALARIU_MINIM_ANUAL) {
+        if (venitNet < 12 * salariuMinimAnual) {
             cas = 0;
-        } else if (venitNet <= 24 * SALARIU_MINIM_ANUAL) {
-            cas = 0.25 * (12 * SALARIU_MINIM_ANUAL);
+        } else if (venitNet <= 24 * salariuMinimAnual) {
+            cas = 0.25 * 12 * salariuMinimAnual;
         } else {
-            cas = 0.25 * (24 * SALARIU_MINIM_ANUAL);
+            cas = 0.25 * 24 * salariuMinimAnual;
         }
 
         return venitNet - impozit - cass - cas;
@@ -123,10 +125,11 @@ class PFAColaborator extends PersoanaFizica {
 
     @Override
     public void afiseaza() {
-        System.out.printf("PFA: %s %s, venit net anual: %.2f lei\n", nume, prenume, calculeazaVenitNetAnual());
+        System.out.printf("PFA: %s %s, venit net anual: %.2f lei%n", nume, prenume, calculeazaVenitNetAnual());
     }
 
-    @Override public String tipContract() { return "PFA"; }
+    @Override
+    public String tipContract() { return "PFA"; }
 }
 
 public class Main {
@@ -167,7 +170,7 @@ public class Main {
         Colaborator max = colaboratori.stream()
                 .max(Comparator.comparingDouble(Colaborator::calculeazaVenitNetAnual))
                 .orElse(null);
-        System.out.printf("\nColaborator cu venit net maxim: ");
+        System.out.printf("%nColaborator cu venit net maxim: ");
         if (max != null) max.afiseaza();
 
         System.out.println("\nColaboratori persoane juridice:");
@@ -193,7 +196,7 @@ public class Main {
             numar.put(t, numar.get(t) + 1);
         }
         for (TipColaborator t : TipColaborator.values()) {
-            System.out.printf("%s: suma = %.2f lei, număr = %d\n", t, suma.get(t), numar.get(t));
+            System.out.printf("%s: suma = %.2f lei, număr = %d%n", t, suma.get(t), numar.get(t));
         }
     }
 }
