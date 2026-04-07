@@ -134,6 +134,25 @@ class PFAColaborator extends PersoanaFizica {
 
 public class Main {
     public static void main(String[] args) {
+        // Schelet original (vezi Readme.md pentru cerințe):
+//        Scanner in = new Scanner(System.in);
+//        int n = in.nextInt();
+//        List<Colaborator> colaboratori = new ArrayList<>();
+//        for (int i = 0; i < n; i++) {
+//            String tip = in.next();
+//            Colaborator c = switch (tip) {
+//                case "CIM" -> { CIMColaborator obj = new CIMColaborator(); obj.citeste(in); yield obj; }
+//                case "PFA" -> { PFAColaborator obj = new PFAColaborator(); obj.citeste(in); yield obj; }
+//                case "SRL" -> { SRLColaborator obj = new SRLColaborator(); obj.citeste(in); yield obj; }
+//                default -> throw new IllegalArgumentException("Tip necunoscut: " + tip);
+//            };
+//            colaboratori.add(c);
+//        }
+//        // Sortează și afișează pe tip, fiecare descrescător după venit net anual
+//        // Colaborator cu venit net maxim
+//        // Colaboratori persoane juridice (SRL)
+//        // Sume și număr colaboratori pe tip
+
         Scanner in = new Scanner(System.in);
         int n = in.nextInt();
         List<Colaborator> colaboratori = new ArrayList<>();
