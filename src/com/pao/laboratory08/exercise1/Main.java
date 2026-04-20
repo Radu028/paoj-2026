@@ -17,6 +17,53 @@ public class Main {
         //    - SHALLOW <nume> → shallow clone + modifică orașul clonei la "MODIFICAT" + afișează
         //    - DEEP <nume> → deep clone + modifică orașul clonei la "MODIFICAT" + afișează
 
-        System.out.println("TODO: implementează exercițiul 1");
+        List<Student> studenti = new ArrayList<>();
+        BufferedReader fin = new BufferedReader(new FileReader(FILE_PATH));
+        String linie;
+        while ((linie = fin.readLine()) != null) {
+            if (linie.trim().isEmpty()) continue;
+            String[] parts = linie.split(",");
+            String nume = parts[0].trim();
+            int varsta = Integer.parseInt(parts[1].trim());
+            String oras = parts[2].trim();
+            String strada = parts[3].trim();
+            studenti.add(new Student(nume, varsta, new Adresa(oras, strada)));
+        }
+        fin.close();
+
+        Scanner scanner = new Scanner(System.in);
+        String comanda = scanner.nextLine().trim();
+
+        if (comanda.equals("PRINT")) {
+            for (Student s : studenti) {
+                System.out.println(s);
+            }
+        } else if (comanda.startsWith("SHALLOW ")) {
+            String nume = comanda.split(" ", 2)[1];
+            Student original = null;
+            for (Student s : studenti) {
+                if (s.getNume().equals(nume)) {
+                    original = s;
+                    break;
+                }
+            }
+            Student clona = original.shallowClone();
+            clona.getAdresa().setOras("MODIFICAT");
+            System.out.println("Original: " + original);
+            System.out.println("Clona: " + clona);
+        } else if (comanda.startsWith("DEEP ")) {
+            String nume = comanda.split(" ", 2)[1];
+            Student original = null;
+            for (Student s : studenti) {
+                if (s.getNume().equals(nume)) {
+                    original = s;
+                    break;
+                }
+            }
+            Student clona = original.deepClone();
+            clona.getAdresa().setOras("MODIFICAT");
+            System.out.println("Original: " + original);
+            System.out.println("Clona: " + clona);
+        }
     }
 }
