@@ -1,6 +1,7 @@
 # tutors only private materials
 previous-*
 private/
+temporarily_curs
 
 # for tests:
 *.diff
