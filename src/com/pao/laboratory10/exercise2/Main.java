@@ -37,6 +37,91 @@ public class Main {
         // Format linie tranzacție: [id] data tip: suma RON
         //   Ex: [1] 2024-01-15 CREDIT: 1500.00 RON
 
-        System.out.println("TODO: implementează exercițiul 2");
+        Scanner scanner = new Scanner(System.in);
+        int n = Integer.parseInt(scanner.nextLine().trim());
+
+        List<Tranzactie> lista = new ArrayList<>();
+        for (int i = 0; i < n; i++) {
+            String[] parts = scanner.nextLine().trim().split("\\s+");
+            int id = Integer.parseInt(parts[0]);
+            double suma = Double.parseDouble(parts[1]);
+            String data = parts[2];
+            TipTranzactie tip = TipTranzactie.valueOf(parts[3]);
+            lista.add(new Tranzactie(id, suma, data, tip));
+        }
+
+        while (scanner.hasNextLine()) {
+            String linie = scanner.nextLine().trim();
+            if (linie.isEmpty()) continue;
+
+            String[] parts = linie.split("\\s+");
+            String cmd = parts[0];
+
+            switch (cmd) {
+                case "UNIQUE_IDS": {
+                    LinkedHashSet<Integer> ids = new LinkedHashSet<>();
+                    for (Tranzactie t : lista) ids.add(t.getId());
+                    System.out.println("IDs unice (" + ids.size() + "): " + ids);
+                    break;
+                }
+                case "MONTHLY_REPORT": {
+                    TreeMap<String, double[]> raport = new TreeMap<>();
+                    for (Tranzactie t : lista) {
+                        String luna = t.getData().substring(0, 7);
+                        double[] sume = raport.computeIfAbsent(luna, k -> new double[2]);
+                        if (t.getTip() == TipTranzactie.CREDIT) sume[0] += t.getSuma();
+                        else sume[1] += t.getSuma();
+                    }
+                    for (Map.Entry<String, double[]> e : raport.entrySet()) {
+                        System.out.printf("%s: CREDIT %.2f RON, DEBIT %.2f RON%n",
+                                e.getKey(), e.getValue()[0], e.getValue()[1]);
+                    }
+                    break;
+                }
+                case "TOP": {
+                    int k = Integer.parseInt(parts[1]);
+                    List<Tranzactie> copie = new ArrayList<>(lista);
+                    copie.sort(Comparator.comparingDouble(Tranzactie::getSuma).reversed());
+                    System.out.println("Top " + k + ":");
+                    for (int i = 0; i < Math.min(k, copie.size()); i++) {
+                        System.out.println(copie.get(i));
+                    }
+                    break;
+                }
+                case "SORT_ASC": {
+                    lista.sort(Comparator.comparingDouble(Tranzactie::getSuma));
+                    for (Tranzactie t : lista) System.out.println(t);
+                    break;
+                }
+                case "SORT_DESC": {
+                    lista.sort(Comparator.comparingDouble(Tranzactie::getSuma).reversed());
+                    for (Tranzactie t : lista) System.out.println(t);
+                    break;
+                }
+                case "REVERSE": {
+                    Collections.reverse(lista);
+                    for (Tranzactie t : lista) System.out.println(t);
+                    break;
+                }
+                case "MIN_MAX": {
+                    Comparator<Tranzactie> cmp = Comparator.comparingDouble(Tranzactie::getSuma);
+                    Tranzactie min = Collections.min(lista, cmp);
+                    Tranzactie max = Collections.max(lista, cmp);
+                    System.out.println("MIN: " + min);
+                    System.out.println("MAX: " + max);
+                    break;
+                }
+                case "CME_DEMO": {
+                    try {
+                        for (Tranzactie t : lista) {
+                            lista.remove(t);
+                        }
+                    } catch (ConcurrentModificationException e) {
+                        System.out.println("ConcurrentModificationException prins: modificare in iteratie detectata.");
+                    }
+                    break;
+                }
+            }
+        }
     }
 }
